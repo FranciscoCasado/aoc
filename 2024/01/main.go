@@ -53,18 +53,7 @@ func abs(x int) int {
 	return x
 }
 
-func main() {
-	if len(os.Args) <= 1 {
-		fmt.Println("No input filename provided")
-		return
-	}
-
-	left, right, err := readInput(os.Args[1])
-	if err != nil {
-		fmt.Println("Error reading file:", err)
-		return
-	}
-
+func distance(left []int, right []int) int {
 	left_sorted := make([]int, len(left))
 	copy(left_sorted, left)
 	sort.Ints(left_sorted)
@@ -79,8 +68,49 @@ func main() {
 	for i := range left {
 		diff[i] = abs(left_sorted[i] - right_sorted[i])
 		sum += diff[i]
-		fmt.Printf("[%3d]\t%v\t%v\t%v\n", i, left_sorted[i], right_sorted[i], diff[i])
 	}
-	fmt.Printf("Total: %v\n", sum)
+	return sum
+}
+
+func similarity(left []int, right []int) int {
+	numbers := make(map[int]int)
+
+	for _, value := range left {
+		numbers[value] = 0
+	}
+
+	for _, value := range right {
+		if _, exists := numbers[value]; exists {
+			numbers[value] += 1
+		}
+	}
+
+	var sim = 0
+
+	for key, value := range numbers {
+		sim += key * value
+		fmt.Printf("[%d]\t%d\t%d\n", key, value, sim)
+	}
+
+	return sim
+}
+
+func main() {
+	if len(os.Args) <= 1 {
+		fmt.Println("No input filename provided")
+		return
+	}
+
+	left, right, err := readInput(os.Args[1])
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return
+	}
+
+	dist := distance(left, right)
+	sim := similarity(left, right)
+
+	fmt.Printf("Distance: %v\n", dist)
+	fmt.Printf("Similarity: %v\n", sim)
 
 }
