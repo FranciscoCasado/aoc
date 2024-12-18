@@ -48,16 +48,16 @@ func abs(x int) int {
 	return x
 }
 
-func (r Report) isSafe() bool {
-	for i := range r.Levels {
+func testArraySafe(arr []int) bool {
+	for i := range arr {
 		if i < 1 {
 			continue
 		}
 
-		if abs(r.Levels[i]-r.Levels[i-1]) > 3 {
+		if abs(arr[i]-arr[i-1]) > 3 {
 			return false
 		}
-		if abs(r.Levels[i]-r.Levels[i-1]) < 1 {
+		if abs(arr[i]-arr[i-1]) < 1 {
 			return false
 		}
 
@@ -65,11 +65,36 @@ func (r Report) isSafe() bool {
 			continue
 		}
 
-		if (r.Levels[i]-r.Levels[i-1])*(r.Levels[i-1]-r.Levels[i-2]) < 0 {
+		if (arr[i]-arr[i-1])*(arr[i-1]-arr[i-2]) < 0 {
 			return false
 		}
 	}
 	return true
+}
+
+func removeIndex(arr []int, index int) []int {
+	return append(arr[:index], arr[index+1:]...)
+}
+func (r Report) isSafe() bool {
+	return testArraySafe(r.Levels)
+}
+
+func (r Report) isDampenedSafe() bool {
+	if r.isSafe() {
+		return true
+	}
+
+	for i := range r.Levels {
+		dampened := make([]int, len(r.Levels))
+		copy(dampened, r.Levels)
+		dampened = removeIndex(dampened, i)
+
+		if testArraySafe(dampened) {
+			return true
+		}
+
+	}
+	return false
 }
 
 func main() {
@@ -87,11 +112,16 @@ func main() {
 	}
 
 	var count = 0
+	var count_dampened = 0
 	for _, report := range reports {
 		if report.isSafe() {
 			count++
 		}
+		if report.isDampenedSafe() {
+			count_dampened++
+		}
 	}
 	fmt.Printf("Total Safe Count: %v\n", count)
+	fmt.Printf("Total Dampened Safe Count: %v\n", count_dampened)
 
 }
